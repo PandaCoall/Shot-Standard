@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Shot Standard",
+      "hasCanvas": false,
+      "bodyTextLen": 564,
+      "bodyTextHash": "7cff14289caef8fba73065b4367f7c4736a175a1605248281c76fc9bf2d7e6fa",
+      "bodyTextPrefix": "Shot Standard MiniMax prompt desk History Standard STILL Drop a ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Shot Standard",
+      "hasCanvas": false,
+      "bodyTextLen": 564,
+      "bodyTextHash": "7cff14289caef8fba73065b4367f7c4736a175a1605248281c76fc9bf2d7e6fa",
+      "bodyTextPrefix": "Shot Standard MiniMax prompt desk History Standard STILL Drop a ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
