@@ -4,19 +4,15 @@ import { AppHeader } from "@/components/app-header";
 import { ControlsPanel } from "@/components/controls-panel";
 import { HistoryDialog } from "@/components/history-dialog";
 import { PlateView } from "@/components/plate-view";
-import { StandardDialog } from "@/components/standard-dialog";
 import { StillStage } from "@/components/still-stage";
 import { fetchExampleStill, stillToDataUrl, stillToThumb } from "@/lib/compress-still";
 import { generatePrompt } from "@/lib/generate-prompt";
 import {
   loadHistory,
-  loadStandard,
   newId,
   persistHistory,
-  persistStandard,
   type HistoryItem,
 } from "@/lib/history";
-import { DEFAULT_STANDARD, type SubjectKind } from "@/lib/prompt-standard";
 
 const STAGES = [
   "Reading the still",
@@ -26,11 +22,6 @@ const STAGES = [
 
 export function ShotDesk() {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [subject, setSubject] = useState<SubjectKind>("auto");
-  const [character, setCharacter] = useState("");
-  const [dialogue, setDialogue] = useState("");
-  const [delivery, setDelivery] = useState("");
-  const [notes, setNotes] = useState("");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
   const [stageLabel, setStageLabel] = useState<string | null>(null);
@@ -38,13 +29,10 @@ export function ShotDesk() {
   const [exampleBusy, setExampleBusy] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [standardOpen, setStandardOpen] = useState(false);
-  const [standard, setStandard] = useState(DEFAULT_STANDARD);
   const generatingRef = useRef(false);
 
   useEffect(() => {
     setHistory(loadHistory());
-    setStandard(loadStandard() ?? DEFAULT_STANDARD);
   }, []);
 
   const applyStill = useCallback((dataUrl: string) => {
@@ -72,12 +60,6 @@ export function ShotDesk() {
     try {
       const dataUrl = await fetchExampleStill();
       applyStill(dataUrl);
-      setSubject("man");
-      setDialogue("Just to sell.");
-      setDelivery("Energetic, slightly exaggerated, direct to camera");
-      setNotes(
-        "Keep the dilapidated house, rusty SOLD FOR SALE sign, black zip-up jacket, and phone-camera aesthetic. Preserve the JUST TO SELL overlay style.",
-      );
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Could not load the example.";
@@ -102,15 +84,7 @@ export function ShotDesk() {
 
     try {
       const result = await generatePrompt({
-        data: {
-          imageDataUrl,
-          subject,
-          character: character.trim() || undefined,
-          dialogue: dialogue.trim() || undefined,
-          delivery: delivery.trim() || undefined,
-          notes: notes.trim() || undefined,
-          standard,
-        },
+        data: { imageDataUrl },
       });
       if (!result.ok) {
         setError(result.error);
@@ -124,8 +98,8 @@ export function ShotDesk() {
         createdAt: Date.now(),
         thumbnail,
         prompt: result.prompt,
-        subject,
-        dialogue: dialogue.trim(),
+        subject: "",
+        dialogue: "",
       };
       setHistory((prev) => {
         const next = [item, ...prev].slice(0, 24);
@@ -143,15 +117,7 @@ export function ShotDesk() {
       setGenerating(false);
       generatingRef.current = false;
     }
-  }, [
-    imageDataUrl,
-    subject,
-    character,
-    dialogue,
-    delivery,
-    notes,
-    standard,
-  ]);
+  }, [imageDataUrl]);
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -185,16 +151,6 @@ export function ShotDesk() {
 
   const restore = (item: HistoryItem) => {
     setPrompt(item.prompt);
-    setDialogue(item.dialogue);
-    if (
-      item.subject === "auto" ||
-      item.subject === "man" ||
-      item.subject === "woman" ||
-      item.subject === "child" ||
-      item.subject === "officer"
-    ) {
-      setSubject(item.subject);
-    }
     toast.success("Plate restored");
   };
 
@@ -202,7 +158,6 @@ export function ShotDesk() {
     <div className="flex min-h-dvh flex-col">
       <AppHeader
         onHistory={() => setHistoryOpen(true)}
-        onStandard={() => setStandardOpen(true)}
         historyCount={history.length}
       />
 
@@ -215,16 +170,6 @@ export function ShotDesk() {
             busy={exampleBusy}
           />
           <ControlsPanel
-            subject={subject}
-            onSubject={setSubject}
-            character={character}
-            onCharacter={setCharacter}
-            dialogue={dialogue}
-            onDialogue={setDialogue}
-            delivery={delivery}
-            onDelivery={setDelivery}
-            notes={notes}
-            onNotes={setNotes}
             canGenerate={Boolean(imageDataUrl)}
             generating={generating}
             onGenerate={() => void writePlate()}
@@ -251,16 +196,6 @@ export function ShotDesk() {
           persistHistory([]);
           setHistory([]);
         }}
-      />
-      <StandardDialog
-        open={standardOpen}
-        onOpenChange={setStandardOpen}
-        value={standard}
-        onChange={(value) => {
-          setStandard(value);
-          persistStandard(value);
-        }}
-        onReset={() => persistStandard(DEFAULT_STANDARD)}
       />
     </div>
   );

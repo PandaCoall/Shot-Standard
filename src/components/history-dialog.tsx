@@ -53,7 +53,8 @@ export function HistoryDialog({
                   />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-mono text-xs text-fg">
-                      {item.dialogue || item.subject || "Untitled plate"}
+                      {item.prompt.split("\n").find((line) => line.startsWith("[")) ||
+                        "Plate"}
                     </span>
                     <span className="mt-0.5 block text-xs text-subtle">
                       {new Date(item.createdAt).toLocaleString()}

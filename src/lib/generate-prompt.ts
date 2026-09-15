@@ -1,26 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import {
-  buildSystemPrompt,
-  buildUserPrompt,
-  DEFAULT_STANDARD,
-  SUBJECT_KINDS,
-} from "./prompt-standard";
+import { buildSystemPrompt, buildUserPrompt } from "./prompt-standard";
 import { parsePlate, assemblePlate, stripFences } from "./parse-prompt";
 
 const InputSchema = z.object({
   imageDataUrl: z.string().min(32).max(2_000_000),
-  subject: z.enum(SUBJECT_KINDS),
-  character: z.string().max(80).optional(),
-  dialogue: z.string().max(400).optional(),
-  delivery: z.string().max(200).optional(),
-  notes: z.string().max(800).optional(),
-  standard: z.string().max(12_000).optional(),
 });
 
 type GenerateOk = { ok: true; prompt: string };
 type GenerateErr = { ok: false; error: string };
 export type GenerateResult = GenerateOk | GenerateErr;
+
+const INSTRUCTION_LINE =
+  /^(describe the |describe exactly |describe shot |describe where |describe source |describe the visual |describe speed |describe dialogue |list the things that must remain)/i;
+
+function stripInstructionLeak(text: string): string {
+  return text
+    .split("\n")
+    .filter((line) => !INSTRUCTION_LINE.test(line.trim()))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 function friendlyStatus(status: number): string {
   if (status === 401 || status === 403) {
@@ -44,22 +45,13 @@ export const generatePrompt = createServerFn({ method: "POST" })
       return { ok: false, error: "That still could not be read." };
     }
 
-    const system = buildSystemPrompt(data.standard?.trim() || DEFAULT_STANDARD);
-    const userText = buildUserPrompt({
-      subject: data.subject,
-      character: data.character,
-      dialogue: data.dialogue,
-      delivery: data.delivery,
-      notes: data.notes,
-    });
-
     const body = {
       model: "grok-4.5",
       reasoning_effort: "low",
-      max_tokens: 2500,
+      max_tokens: 4000,
       temperature: 0.35,
       messages: [
-        { role: "system", content: system },
+        { role: "system", content: buildSystemPrompt() },
         {
           role: "user",
           content: [
@@ -67,7 +59,7 @@ export const generatePrompt = createServerFn({ method: "POST" })
               type: "image_url",
               image_url: { url: image, detail: "high" },
             },
-            { type: "text", text: userText },
+            { type: "text", text: buildUserPrompt() },
           ],
         },
       ],
@@ -108,10 +100,12 @@ export const generatePrompt = createServerFn({ method: "POST" })
       return { ok: false, error: "Grok returned an empty plate. Try again." };
     }
 
-    const raw = stripFences(content);
+    const raw = stripInstructionLeak(stripFences(content));
     const parsed = parsePlate(raw);
     const prompt =
-      parsed.sections.length > 0 ? assemblePlate(parsed.sections) : raw;
+      parsed.sections.length > 0
+        ? stripInstructionLeak(assemblePlate(parsed.sections))
+        : raw;
 
     return { ok: true, prompt };
   });

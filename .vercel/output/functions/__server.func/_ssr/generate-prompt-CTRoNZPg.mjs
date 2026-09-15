@@ -1,7 +1,7 @@
 import { n as TSS_SERVER_FUNCTION, t as createServerFn } from "./ssr.mjs";
-import { a as buildSystemPrompt, c as stripFences, o as buildUserPrompt, r as SUBJECT_KINDS, t as DEFAULT_STANDARD } from "./parse-prompt-v60lJv_I.mjs";
-import { a as string, i as object, t as _enum } from "../_libs/zod.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/generate-prompt-Evnbj4lK.js
+import { a as parsePlate, i as buildUserPrompt, n as assemblePlate, r as buildSystemPrompt, s as stripFences } from "./parse-prompt-DctMrUnl.mjs";
+import { i as string, r as object } from "../_libs/zod.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/generate-prompt-CTRoNZPg.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -10,15 +10,11 @@ var createServerRpc = (serverFnMeta, splitImportFn) => {
 		[TSS_SERVER_FUNCTION]: true
 	});
 };
-var InputSchema = object({
-	imageDataUrl: string().min(32).max(2e6),
-	subject: _enum(SUBJECT_KINDS),
-	character: string().max(80).optional(),
-	dialogue: string().max(400).optional(),
-	delivery: string().max(200).optional(),
-	notes: string().max(800).optional(),
-	standard: string().max(12e3).optional()
-});
+var InputSchema = object({ imageDataUrl: string().min(32).max(2e6) });
+var INSTRUCTION_LINE = /^(describe the |describe exactly |describe shot |describe where |describe source |describe the visual |describe speed |describe dialogue |list the things that must remain)/i;
+function stripInstructionLeak(text) {
+	return text.split("\n").filter((line) => !INSTRUCTION_LINE.test(line.trim())).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
 function friendlyStatus(status) {
 	if (status === 401 || status === 403) return "Grok is not available in this environment.";
 	if (status === 429) return "The desk is busy. Wait a moment and write again.";
@@ -41,22 +37,14 @@ var generatePrompt = createServerFn({ method: "POST" }).validator((input) => Inp
 		ok: false,
 		error: "That still could not be read."
 	};
-	const system = buildSystemPrompt(data.standard?.trim() || DEFAULT_STANDARD);
-	const userText = buildUserPrompt({
-		subject: data.subject,
-		character: data.character,
-		dialogue: data.dialogue,
-		delivery: data.delivery,
-		notes: data.notes
-	});
 	const body = {
 		model: "grok-4.5",
 		reasoning_effort: "low",
-		max_tokens: 2500,
+		max_tokens: 4e3,
 		temperature: .35,
 		messages: [{
 			role: "system",
-			content: system
+			content: buildSystemPrompt()
 		}, {
 			role: "user",
 			content: [{
@@ -67,7 +55,7 @@ var generatePrompt = createServerFn({ method: "POST" }).validator((input) => Inp
 				}
 			}, {
 				type: "text",
-				text: userText
+				text: buildUserPrompt()
 			}]
 		}]
 	};
@@ -97,9 +85,11 @@ var generatePrompt = createServerFn({ method: "POST" }).validator((input) => Inp
 		ok: false,
 		error: "Grok returned an empty plate. Try again."
 	};
+	const raw = stripInstructionLeak(stripFences(content));
+	const parsed = parsePlate(raw);
 	return {
 		ok: true,
-		prompt: stripFences(content)
+		prompt: parsed.sections.length > 0 ? stripInstructionLeak(assemblePlate(parsed.sections)) : raw
 	};
 });
 //#endregion

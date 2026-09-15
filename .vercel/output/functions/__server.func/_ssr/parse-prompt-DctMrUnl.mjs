@@ -1,25 +1,22 @@
-export const SECTION_ORDER = [
-  "SCENE",
-  "SUBJECT",
-  "ACTION",
-  "CAMERA",
-  "COMPOSITION",
-  "LIGHTING",
-  "STYLE",
-  "MOTION & PACING",
-  "AUDIO",
-  "IMPORTANT",
-  "DIALOGUE",
-  "SUBTITLES",
-] as const;
-
-export type SectionName = (typeof SECTION_ORDER)[number];
-
-export function sectionMarker(name: SectionName | string): string {
-  return `[${name}]`;
+//#region node_modules/.nitro/vite/services/ssr/assets/parse-prompt-DctMrUnl.js
+var SECTION_ORDER = [
+	"SCENE",
+	"SUBJECT",
+	"ACTION",
+	"CAMERA",
+	"COMPOSITION",
+	"LIGHTING",
+	"STYLE",
+	"MOTION & PACING",
+	"AUDIO",
+	"IMPORTANT",
+	"DIALOGUE",
+	"SUBTITLES"
+];
+function sectionMarker(name) {
+	return `[${name}]`;
 }
-
-export const GOLD_STANDARD_EXAMPLE = `[SCENE]
+var GOLD_STANDARD_EXAMPLE = `[SCENE]
 Daytime exterior in front of a heavily dilapidated two-story house. The house has peeling paint, broken and boarded-up windows, and an overgrown yard covered in dry leaves. A rusty “SOLD FOR SALE” real-estate sign stands in the foreground.
 
 [SUBJECT]
@@ -64,10 +61,8 @@ Use the same bold, heavy-weight style as the on-screen text “JUST TO SELL” i
 Bottom-center placement.
 Synchronize precisely with the spoken words.
 Do not alter, paraphrase, or add text.`;
-
-export function buildSystemPrompt(): string {
-  const markers = SECTION_ORDER.map((name) => sectionMarker(name)).join("\n");
-  return `You are a specialist cinematographer-writer for MiniMax video generation.
+function buildSystemPrompt() {
+	return `You are a specialist cinematographer-writer for MiniMax video generation.
 
 Look at ONE still and write a MiniMax plate that a video model can follow to animate that exact freeze-frame. Be very detailed. Lock face, wardrobe, location, props, on-screen text, and camera language to what is actually in the photograph.
 
@@ -76,7 +71,7 @@ OUTPUT RULES
 - Every heading is a square-bracket marker on its own line. Never write SCENE: or “Describe the location”. Write [SCENE], then only the content.
 - Markers in this exact order:
 
-${markers}
+${SECTION_ORDER.map((name) => sectionMarker(name)).join("\n")}
 
 - Do not copy helper instructions such as “Describe the location, time and overall visual situation.” Those are not the plate.
 - Present tense. Concrete. Name materials, colors, garments, positions, gestures, textures, weather, and any readable text.
@@ -102,9 +97,53 @@ ${markers}
 GOLD-STANDARD EXAMPLE:
 ${GOLD_STANDARD_EXAMPLE}`;
 }
-
-export function buildUserPrompt(): string {
-  return "Write the MiniMax plate for this still. Describe in detail what is happening. [SUBJECT] must include appearance and the person’s actions. Use [SCENE] style markers only — no instruction sentences under the headings.";
+function buildUserPrompt() {
+	return "Write the MiniMax plate for this still. Describe in detail what is happening. [SUBJECT] must include appearance and the person’s actions. Use [SCENE] style markers only — no instruction sentences under the headings.";
 }
-
-export const DEFAULT_STANDARD = GOLD_STANDARD_EXAMPLE;
+var NAME_ALT = SECTION_ORDER.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+var HEADER_RE = new RegExp(`^(?:\\[(${NAME_ALT})\\]|(${NAME_ALT}):)\\s*$`, "i");
+function stripFences(raw) {
+	let text = raw.trim();
+	if (text.startsWith("```")) text = text.replace(/^```(?:[\w-]+)?\s*/, "").replace(/\s*```$/, "");
+	text = text.replace(/^MINI\s*MAX\s*PROMPT\s*STANDARD\s*/i, "");
+	return text.trim();
+}
+function resolveHeader(match) {
+	const raw = match[1] ?? match[2];
+	if (!raw) return null;
+	return SECTION_ORDER.find((s) => s.toLowerCase() === raw.toLowerCase()) ?? null;
+}
+function parsePlate(raw) {
+	const text = stripFences(raw);
+	const lines = text.split(/\r?\n/);
+	const sections = [];
+	let current = null;
+	let buf = [];
+	const flush = () => {
+		if (!current) return;
+		sections.push({
+			name: current,
+			body: buf.join("\n").trim()
+		});
+		buf = [];
+	};
+	for (const line of lines) {
+		const match = line.trim().match(HEADER_RE);
+		if (match) {
+			flush();
+			current = resolveHeader(match);
+			continue;
+		}
+		if (current) buf.push(line);
+	}
+	flush();
+	return {
+		sections,
+		text
+	};
+}
+function assemblePlate(sections) {
+	return sections.map((s) => `${sectionMarker(s.name)}\n${s.body}`.trim()).join("\n\n");
+}
+//#endregion
+export { parsePlate as a, buildUserPrompt as i, assemblePlate as n, sectionMarker as o, buildSystemPrompt as r, stripFences as s, SECTION_ORDER as t };

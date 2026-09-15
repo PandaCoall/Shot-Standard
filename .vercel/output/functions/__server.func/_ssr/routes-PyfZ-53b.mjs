@@ -1,16 +1,15 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { a as DialogOverlay$1, i as DialogDescription$1, l as Slot, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
+import { a as DialogOverlay$1, c as Slot, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
-import { i as SUBJECT_LABELS, n as SECTION_ORDER, r as SUBJECT_KINDS, s as parsePlate, t as DEFAULT_STANDARD } from "./parse-prompt-v60lJv_I.mjs";
-import { a as string, i as object, t as _enum } from "../_libs/zod.mjs";
-import { a as Pencil, c as History, d as Clapperboard, f as Check, i as RotateCcw, l as Download, o as LoaderCircle, r as SlidersHorizontal, s as ImagePlus, t as X, u as Copy } from "../_libs/lucide-react.mjs";
+import { a as parsePlate, n as assemblePlate, o as sectionMarker, t as SECTION_ORDER } from "./parse-prompt-DctMrUnl.mjs";
+import { i as string, r as object } from "../_libs/zod.mjs";
+import { a as LoaderCircle, c as Download, d as Check, i as Pencil, l as Copy, o as ImagePlus, r as RotateCcw, s as History, t as X, u as Clapperboard } from "../_libs/lucide-react.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
-import { t as Root } from "../_libs/radix-ui__react-label.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-DPlfb8CX.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-PyfZ-53b.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -37,7 +36,7 @@ var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespa
 		size: "default"
 	}
 });
-var Button = import_react.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
+var Button = import_react.forwardRef(({ className, variant, size, asChild = false, type, ...props }, ref) => {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(asChild ? Slot : "button", {
 		className: cn(buttonVariants({
 			variant,
@@ -45,11 +44,12 @@ var Button = import_react.forwardRef(({ className, variant, size, asChild = fals
 			className
 		})),
 		ref,
+		type: asChild ? type : type ?? "button",
 		...props
 	});
 });
 Button.displayName = "Button";
-function AppHeader({ onHistory, onStandard, historyCount }) {
+function AppHeader({ onHistory, historyCount }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
 		className: "flex items-center justify-between gap-4 px-4 py-4 sm:px-6",
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -62,141 +62,39 @@ function AppHeader({ onHistory, onStandard, historyCount }) {
 				})]
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 				className: "mt-1 text-xs tracking-wide text-muted",
-				children: "MiniMax prompt desk"
+				children: "Drop a still. Grok writes the MiniMax plate."
 			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "flex items-center gap-1.5",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-				variant: "ghost",
-				size: "sm",
-				onClick: onHistory,
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "size-3.5" }),
-					"History",
-					historyCount > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "tabular-nums text-subtle",
-						children: historyCount
-					}) : null
-				]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-				variant: "outline",
-				size: "sm",
-				onClick: onStandard,
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "size-3.5" }), "Standard"]
-			})]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+			variant: "ghost",
+			size: "sm",
+			onClick: onHistory,
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "size-3.5" }),
+				"History",
+				historyCount > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "tabular-nums text-subtle",
+					children: historyCount
+				}) : null
+			]
 		})]
 	});
 }
-var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-		type,
-		className: cn("flex h-11 w-full rounded-md bg-elevated px-3 text-sm text-fg shadow-border", "placeholder:text-subtle", "transition-[box-shadow] duration-150 ease-out", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50", "disabled:cursor-not-allowed disabled:opacity-50", className),
-		ref,
-		...props
-	});
-});
-Input.displayName = "Input";
-var Label = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
-	ref,
-	className: cn("text-xs font-medium tracking-wide text-muted", className),
-	...props
-}));
-Label.displayName = Root.displayName;
-var Textarea = import_react.forwardRef(({ className, ...props }, ref) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-		className: cn("flex min-h-24 w-full rounded-lg bg-elevated px-3 py-2.5 text-sm text-fg shadow-border", "placeholder:text-subtle", "transition-[box-shadow] duration-150 ease-out", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50", "disabled:cursor-not-allowed disabled:opacity-50", className),
-		ref,
-		...props
-	});
-});
-Textarea.displayName = "Textarea";
-function ControlsPanel({ subject, onSubject, character, onCharacter, dialogue, onDialogue, delivery, onDelivery, notes, onNotes, canGenerate, generating, onGenerate, stageLabel }) {
+function ControlsPanel({ canGenerate, generating, onGenerate, stageLabel }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "flex flex-col gap-4",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex flex-col gap-2",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, { children: "Subject" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "flex flex-wrap gap-1.5",
-					children: SUBJECT_KINDS.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						type: "button",
-						onClick: () => onSubject(kind),
-						className: cn("h-9 rounded-full px-3 text-xs font-medium transition-[background-color,color,box-shadow] duration-150", subject === kind ? "bg-accent text-accent-fg" : "bg-elevated text-muted shadow-border hover:text-fg"),
-						"aria-pressed": subject === kind,
-						children: kind === "auto" ? "Auto" : `[${SUBJECT_LABELS[kind]}]`
-					}, kind))
-				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "grid gap-3 sm:grid-cols-2",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex flex-col gap-1.5",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
-						htmlFor: "character",
-						children: "Character name"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						id: "character",
-						placeholder: "Optional",
-						value: character,
-						onChange: (e) => onCharacter(e.target.value),
-						maxLength: 80
-					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex flex-col gap-1.5",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
-						htmlFor: "delivery",
-						children: "Delivery"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						id: "delivery",
-						placeholder: "quiet, tense, whispered",
-						value: delivery,
-						onChange: (e) => onDelivery(e.target.value),
-						maxLength: 200
-					})]
-				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex flex-col gap-1.5",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
-					htmlFor: "dialogue",
-					children: "Exact dialogue"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-					id: "dialogue",
-					placeholder: "Leave blank to infer from the still",
-					value: dialogue,
-					onChange: (e) => onDialogue(e.target.value),
-					maxLength: 400
-				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex flex-col gap-1.5",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
-					htmlFor: "notes",
-					children: "Extra notes"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
-					id: "notes",
-					placeholder: "Phone-video look, keep the sign, no music…",
-					value: notes,
-					onChange: (e) => onNotes(e.target.value),
-					maxLength: 800,
-					className: "min-h-16"
-				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-				size: "lg",
-				className: "w-full",
-				disabled: !canGenerate || generating,
-				onClick: onGenerate,
-				children: generating ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }), stageLabel ?? "Writing the plate"] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clapperboard, {
-					className: "size-4",
-					strokeWidth: 1.75
-				}), "Write prompt"] })
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "text-center text-xs text-subtle",
-				children: "⌘ / Ctrl + Enter"
-			})
-		]
+		className: "flex flex-col gap-2",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+			size: "lg",
+			className: "w-full",
+			disabled: !canGenerate || generating,
+			onClick: onGenerate,
+			children: generating ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }), stageLabel ?? "Writing the plate"] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clapperboard, {
+				className: "size-4",
+				strokeWidth: 1.75
+			}), "Write plate"] })
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+			className: "text-center text-xs text-subtle",
+			children: "Grok reads the still. No fields to fill. ⌘ / Ctrl + Enter"
+		})]
 	});
 }
 var Dialog = Dialog$1;
@@ -266,7 +164,7 @@ function HistoryDialog({ open, onOpenChange, items, onRestore, onClear }) {
 							className: "min-w-0 flex-1",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "block truncate font-mono text-xs text-fg",
-								children: item.dialogue || item.subject || "Untitled plate"
+								children: item.prompt.split("\n").find((line) => line.startsWith("[")) || "Plate"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "mt-0.5 block text-xs text-subtle",
 								children: new Date(item.createdAt).toLocaleString()
@@ -287,13 +185,50 @@ function HistoryDialog({ open, onOpenChange, items, onRestore, onClear }) {
 		})
 	});
 }
-async function copyText(value, label) {
-	try {
-		await navigator.clipboard.writeText(value);
-		toast.success(label);
+var Textarea = import_react.forwardRef(({ className, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+		className: cn("flex min-h-24 w-full rounded-lg bg-elevated px-3 py-2.5 text-sm text-fg shadow-border", "placeholder:text-subtle", "transition-[box-shadow] duration-150 ease-out", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50", "disabled:cursor-not-allowed disabled:opacity-50", className),
+		ref,
+		...props
+	});
+});
+Textarea.displayName = "Textarea";
+/**
+* Copy text while a click is still a user gesture.
+* `navigator.clipboard` is often blocked in cross-origin preview iframes;
+* execCommand must run *before* any await or the gesture is spent.
+*/
+async function copyToClipboard(text) {
+	if (!text) return false;
+	if (copyWithExecCommand(text)) return true;
+	if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) try {
+		await navigator.clipboard.writeText(text);
+		return true;
 	} catch {
-		toast.error("Clipboard is blocked");
+		return false;
 	}
+	return false;
+}
+function copyWithExecCommand(text) {
+	if (typeof document === "undefined") return false;
+	const el = document.createElement("textarea");
+	el.value = text;
+	el.setAttribute("readonly", "");
+	el.setAttribute("aria-hidden", "true");
+	el.tabIndex = -1;
+	el.style.cssText = "position:fixed;top:0;left:0;width:2px;height:2px;padding:0;margin:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0.01;z-index:-1;";
+	document.body.appendChild(el);
+	el.focus();
+	el.select();
+	el.setSelectionRange(0, text.length);
+	let ok = false;
+	try {
+		ok = document.execCommand("copy");
+	} catch {
+		ok = false;
+	}
+	document.body.removeChild(el);
+	return ok;
 }
 function downloadPlate(value) {
 	const blob = new Blob([value], { type: "text/plain;charset=utf-8" });
@@ -307,11 +242,35 @@ function downloadPlate(value) {
 function PlateView({ prompt, generating, error, onChange }) {
 	const [editing, setEditing] = (0, import_react.useState)(false);
 	const [copied, setCopied] = (0, import_react.useState)(false);
+	const editorRef = (0, import_react.useRef)(null);
 	const parsed = (0, import_react.useMemo)(() => parsePlate(prompt), [prompt]);
+	const plateText = parsed.sections.length > 0 ? assemblePlate(parsed.sections) : prompt;
+	const selectInEditor = () => {
+		setEditing(true);
+		window.requestAnimationFrame(() => {
+			const el = editorRef.current;
+			if (!el) return;
+			el.focus();
+			el.select();
+		});
+	};
 	const handleCopy = async () => {
-		await copyText(prompt, "Plate copied");
-		setCopied(true);
-		window.setTimeout(() => setCopied(false), 1400);
+		if (await copyToClipboard(plateText)) {
+			toast.success("Plate copied");
+			setCopied(true);
+			window.setTimeout(() => setCopied(false), 1400);
+			return;
+		}
+		selectInEditor();
+		toast.message("Plate selected — press ⌘C / Ctrl+C");
+	};
+	const handleSectionCopy = async (value, label) => {
+		if (await copyToClipboard(value)) {
+			toast.success(label);
+			return;
+		}
+		selectInEditor();
+		toast.message("Selected — press ⌘C / Ctrl+C");
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 		className: "flex min-h-0 flex-1 flex-col rounded-xl bg-surface shadow-border",
@@ -337,13 +296,13 @@ function PlateView({ prompt, generating, error, onChange }) {
 						variant: "outline",
 						size: "sm",
 						disabled: !prompt,
-						onClick: () => downloadPlate(prompt),
+						onClick: () => downloadPlate(plateText),
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { className: "size-3.5" }), ".txt"]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 						size: "sm",
 						disabled: !prompt,
-						onClick: handleCopy,
+						onClick: () => void handleCopy(),
 						children: [copied ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "size-3.5" }), "Copy plate"]
 					})
 				]
@@ -354,12 +313,15 @@ function PlateView({ prompt, generating, error, onChange }) {
 				className: "rounded-lg bg-elevated px-4 py-3 text-sm text-mark shadow-border",
 				children: error
 			}) : !prompt ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EmptyPlate, {}) : editing ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+				ref: editorRef,
+				id: "plate-editor",
 				value: prompt,
 				onChange: (e) => onChange(e.target.value),
 				className: "min-h-96 font-mono text-plate leading-relaxed"
 			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlateBody, {
 				sections: parsed.sections,
-				fallback: prompt
+				fallback: prompt,
+				onCopySection: handleSectionCopy
 			})
 		})]
 	});
@@ -376,11 +338,11 @@ function EmptyPlate() {
 		})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", {
 			className: "grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3",
 			children: SECTION_ORDER.map((name, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-				className: "flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle uppercase",
+				className: "flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 					className: "text-subtle/70 tabular-nums",
 					children: String(i + 1).padStart(2, "0")
-				}), name]
+				}), sectionMarker(name)]
 			}, name))
 		})]
 	});
@@ -396,8 +358,8 @@ function WritingState() {
 			children: SECTION_ORDER.map((name, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
 				className: "flex flex-col gap-1.5",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "font-mono text-micro tracking-wide text-subtle uppercase",
-					children: name
+					className: "font-mono text-micro tracking-wide text-subtle",
+					children: sectionMarker(name)
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 					className: "h-2.5 rounded-sm bg-elevated",
 					style: { width: `${58 + i * 17 % 32}%` }
@@ -406,64 +368,34 @@ function WritingState() {
 		})]
 	});
 }
-function PlateBody({ sections, fallback }) {
+function PlateBody({ sections, fallback, onCopySection }) {
 	if (sections.length === 0) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", {
 		className: "whitespace-pre-wrap font-mono text-plate leading-relaxed text-fg",
 		children: fallback
 	});
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "flex flex-col gap-6",
-		children: sections.map((section) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-			className: "flex flex-col gap-2",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex items-center justify-between gap-3",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-					className: "font-mono text-micro tracking-widest text-mark uppercase",
-					children: section.name
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-					type: "button",
-					className: cn("inline-flex size-8 items-center justify-center rounded-md text-subtle", "transition-colors hover:bg-elevated hover:text-fg"),
-					onClick: () => copyText(`${section.name}:\n${section.body}`, `${section.name} copied`),
-					"aria-label": `Copy ${section.name}`,
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "size-3.5" })
-				})]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "whitespace-pre-wrap font-mono text-[0.8125rem] leading-relaxed text-fg",
-				children: section.body
-			})]
-		}, section.name))
-	});
-}
-function StandardDialog({ open, onOpenChange, value, onChange, onReset }) {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
-		open,
-		onOpenChange,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-			className: "flex max-h-[88dvh] max-w-3xl flex-col",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, { children: "Prompt standard" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, { children: "Grok follows this template for every still. Edit the markers, keep the section names." })] }),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
-					value,
-					onChange: (e) => onChange(e.target.value),
-					className: "min-h-0 flex-1 font-mono text-plate leading-relaxed"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex flex-wrap items-center justify-between gap-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-						variant: "ghost",
-						size: "sm",
-						onClick: () => {
-							onChange(DEFAULT_STANDARD);
-							onReset();
-						},
-						children: "Restore default"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-						size: "sm",
-						onClick: () => onOpenChange(false),
-						children: "Save standard"
+		children: sections.map((section) => {
+			const marker = sectionMarker(section.name);
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+				className: "flex flex-col gap-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex items-center justify-between gap-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+						className: "font-mono text-micro tracking-widest text-mark",
+						children: marker
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: cn("inline-flex size-8 items-center justify-center rounded-md text-subtle", "transition-colors hover:bg-elevated hover:text-fg"),
+						onClick: () => onCopySection(`${marker}\n${section.body}`, `${marker} copied`),
+						"aria-label": `Copy ${marker}`,
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "size-3.5" })
 					})]
-				})
-			]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "whitespace-pre-wrap font-mono text-plate leading-relaxed text-fg",
+					children: section.body
+				})]
+			}, section.name);
 		})
 	});
 }
@@ -634,18 +566,9 @@ var createSsrRpc = (functionId) => {
 		[TSS_SERVER_FUNCTION]: true
 	});
 };
-var InputSchema = object({
-	imageDataUrl: string().min(32).max(2e6),
-	subject: _enum(SUBJECT_KINDS),
-	character: string().max(80).optional(),
-	dialogue: string().max(400).optional(),
-	delivery: string().max(200).optional(),
-	notes: string().max(800).optional(),
-	standard: string().max(12e3).optional()
-});
+var InputSchema = object({ imageDataUrl: string().min(32).max(2e6) });
 var generatePrompt = createServerFn({ method: "POST" }).validator((input) => InputSchema.parse(input)).handler(createSsrRpc("ae0b66bc00cda576a80e03abb5ceaab9ac189b8280d56d030ca6f8306bf252f0"));
 var KEY = "shot-standard-history-v1";
-var STANDARD_KEY = "shot-standard-template-v1";
 var MAX_ITEMS = 24;
 function safeParse(raw, fallback) {
 	if (!raw) return fallback;
@@ -663,14 +586,6 @@ function loadHistory() {
 function persistHistory(items) {
 	localStorage.setItem(KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
 }
-function loadStandard() {
-	if (typeof window === "undefined") return null;
-	const value = localStorage.getItem(STANDARD_KEY);
-	return value && value.trim() ? value : null;
-}
-function persistStandard(value) {
-	localStorage.setItem(STANDARD_KEY, value);
-}
 function newId() {
 	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -681,11 +596,6 @@ var STAGES = [
 ];
 function ShotDesk() {
 	const [imageDataUrl, setImageDataUrl] = (0, import_react.useState)(null);
-	const [subject, setSubject] = (0, import_react.useState)("auto");
-	const [character, setCharacter] = (0, import_react.useState)("");
-	const [dialogue, setDialogue] = (0, import_react.useState)("");
-	const [delivery, setDelivery] = (0, import_react.useState)("");
-	const [notes, setNotes] = (0, import_react.useState)("");
 	const [prompt, setPrompt] = (0, import_react.useState)("");
 	const [generating, setGenerating] = (0, import_react.useState)(false);
 	const [stageLabel, setStageLabel] = (0, import_react.useState)(null);
@@ -693,12 +603,9 @@ function ShotDesk() {
 	const [exampleBusy, setExampleBusy] = (0, import_react.useState)(false);
 	const [history, setHistory] = (0, import_react.useState)([]);
 	const [historyOpen, setHistoryOpen] = (0, import_react.useState)(false);
-	const [standardOpen, setStandardOpen] = (0, import_react.useState)(false);
-	const [standard, setStandard] = (0, import_react.useState)(DEFAULT_STANDARD);
 	const generatingRef = (0, import_react.useRef)(false);
 	(0, import_react.useEffect)(() => {
 		setHistory(loadHistory());
-		setStandard(loadStandard() ?? DEFAULT_STANDARD);
 	}, []);
 	const applyStill = (0, import_react.useCallback)((dataUrl) => {
 		setImageDataUrl(dataUrl);
@@ -719,10 +626,6 @@ function ShotDesk() {
 		try {
 			const dataUrl = await fetchExampleStill();
 			applyStill(dataUrl);
-			setSubject("man");
-			setDialogue("Just to sell.");
-			setDelivery("Energetic, slightly exaggerated, direct to camera");
-			setNotes("Keep the dilapidated house, rusty SOLD FOR SALE sign, black zip-up jacket, and phone-camera aesthetic. Preserve the JUST TO SELL overlay style.");
 		} catch (err) {
 			const message = err instanceof Error ? err.message : "Could not load the example.";
 			toast.error(message);
@@ -743,15 +646,7 @@ function ShotDesk() {
 			});
 		}, 2200);
 		try {
-			const result = await generatePrompt({ data: {
-				imageDataUrl,
-				subject,
-				character: character.trim() || void 0,
-				dialogue: dialogue.trim() || void 0,
-				delivery: delivery.trim() || void 0,
-				notes: notes.trim() || void 0,
-				standard
-			} });
+			const result = await generatePrompt({ data: { imageDataUrl } });
 			if (!result.ok) {
 				setError(result.error);
 				toast.error(result.error);
@@ -764,8 +659,8 @@ function ShotDesk() {
 				createdAt: Date.now(),
 				thumbnail,
 				prompt: result.prompt,
-				subject,
-				dialogue: dialogue.trim()
+				subject: "",
+				dialogue: ""
 			};
 			setHistory((prev) => {
 				const next = [item, ...prev].slice(0, 24);
@@ -782,15 +677,7 @@ function ShotDesk() {
 			setGenerating(false);
 			generatingRef.current = false;
 		}
-	}, [
-		imageDataUrl,
-		subject,
-		character,
-		dialogue,
-		delivery,
-		notes,
-		standard
-	]);
+	}, [imageDataUrl]);
 	(0, import_react.useEffect)(() => {
 		const onPaste = (event) => {
 			const items = event.clipboardData?.items;
@@ -819,8 +706,6 @@ function ShotDesk() {
 	}, [writePlate]);
 	const restore = (item) => {
 		setPrompt(item.prompt);
-		setDialogue(item.dialogue);
-		if (item.subject === "auto" || item.subject === "man" || item.subject === "woman" || item.subject === "child" || item.subject === "officer") setSubject(item.subject);
 		toast.success("Plate restored");
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -828,7 +713,6 @@ function ShotDesk() {
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AppHeader, {
 				onHistory: () => setHistoryOpen(true),
-				onStandard: () => setStandardOpen(true),
 				historyCount: history.length
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
@@ -841,16 +725,6 @@ function ShotDesk() {
 						onExample: () => void handleExample(),
 						busy: exampleBusy
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ControlsPanel, {
-						subject,
-						onSubject: setSubject,
-						character,
-						onCharacter: setCharacter,
-						dialogue,
-						onDialogue: setDialogue,
-						delivery,
-						onDelivery: setDelivery,
-						notes,
-						onNotes: setNotes,
 						canGenerate: Boolean(imageDataUrl),
 						generating,
 						onGenerate: () => void writePlate(),
@@ -875,16 +749,6 @@ function ShotDesk() {
 					persistHistory([]);
 					setHistory([]);
 				}
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(StandardDialog, {
-				open: standardOpen,
-				onOpenChange: setStandardOpen,
-				value: standard,
-				onChange: (value) => {
-					setStandard(value);
-					persistStandard(value);
-				},
-				onReset: () => persistStandard(DEFAULT_STANDARD)
 			})
 		]
 	});
