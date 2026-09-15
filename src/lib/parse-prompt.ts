@@ -1,12 +1,16 @@
-import { SECTION_ORDER, type SectionName } from "./prompt-standard";
+import { SECTION_ORDER, sectionMarker, type SectionName } from "./prompt-standard";
 
 export type PlateSection = {
   name: SectionName;
   body: string;
 };
 
+const NAME_ALT = SECTION_ORDER.map((s) =>
+  s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+).join("|");
+
 const HEADER_RE = new RegExp(
-  `^(${SECTION_ORDER.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}):\\s*$`,
+  `^(?:\\[(${NAME_ALT})\\]|(${NAME_ALT}):)\\s*$`,
   "i",
 );
 
@@ -17,6 +21,14 @@ export function stripFences(raw: string): string {
   }
   text = text.replace(/^MINI\s*MAX\s*PROMPT\s*STANDARD\s*/i, "");
   return text.trim();
+}
+
+function resolveHeader(match: RegExpMatchArray): SectionName | null {
+  const raw = match[1] ?? match[2];
+  if (!raw) return null;
+  return (
+    SECTION_ORDER.find((s) => s.toLowerCase() === raw.toLowerCase()) ?? null
+  );
 }
 
 export function parsePlate(raw: string): { sections: PlateSection[]; text: string } {
@@ -36,10 +48,7 @@ export function parsePlate(raw: string): { sections: PlateSection[]; text: strin
     const match = line.trim().match(HEADER_RE);
     if (match) {
       flush();
-      const found = SECTION_ORDER.find(
-        (s) => s.toLowerCase() === match[1]!.toLowerCase(),
-      );
-      current = found ?? null;
+      current = resolveHeader(match);
       continue;
     }
     if (current) buf.push(line);
@@ -51,7 +60,7 @@ export function parsePlate(raw: string): { sections: PlateSection[]; text: strin
 
 export function assemblePlate(sections: PlateSection[]): string {
   return sections
-    .map((s) => `${s.name}:\n${s.body}`.trim())
+    .map((s) => `${sectionMarker(s.name)}\n${s.body}`.trim())
     .join("\n\n");
 }
 

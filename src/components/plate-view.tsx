@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { copyToClipboard } from "@/lib/copy-text";
-import { SECTION_ORDER } from "@/lib/prompt-standard";
+import { SECTION_ORDER, sectionMarker } from "@/lib/prompt-standard";
 import { assemblePlate, parsePlate, type PlateSection } from "@/lib/parse-prompt";
 import { cn } from "@/lib/utils";
 
@@ -164,12 +164,12 @@ function EmptyPlate() {
         {SECTION_ORDER.map((name, i) => (
           <li
             key={name}
-            className="flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle uppercase"
+            className="flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle"
           >
             <span className="text-subtle/70 tabular-nums">
               {String(i + 1).padStart(2, "0")}
             </span>
-            {name}
+            {sectionMarker(name)}
           </li>
         ))}
       </ol>
@@ -186,8 +186,8 @@ function WritingState() {
       <ol className="flex flex-col gap-3">
         {SECTION_ORDER.map((name, i) => (
           <li key={name} className="flex flex-col gap-1.5">
-            <span className="font-mono text-micro tracking-wide text-subtle uppercase">
-              {name}
+            <span className="font-mono text-micro tracking-wide text-subtle">
+              {sectionMarker(name)}
             </span>
             <span
               className="h-2.5 rounded-sm bg-elevated"
@@ -219,34 +219,37 @@ function PlateBody({
 
   return (
     <div className="flex flex-col gap-6">
-      {sections.map((section) => (
-        <article key={section.name} className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-mono text-micro tracking-widest text-mark uppercase">
-              {section.name}
-            </h3>
-            <button
-              type="button"
-              className={cn(
-                "inline-flex size-8 items-center justify-center rounded-md text-subtle",
-                "transition-colors hover:bg-elevated hover:text-fg",
-              )}
-              onClick={() =>
-                onCopySection(
-                  `${section.name}:\n${section.body}`,
-                  `${section.name} copied`,
-                )
-              }
-              aria-label={`Copy ${section.name}`}
-            >
-              <Copy className="size-3.5" />
-            </button>
-          </div>
-          <p className="whitespace-pre-wrap font-mono text-plate leading-relaxed text-fg">
-            {section.body}
-          </p>
-        </article>
-      ))}
+      {sections.map((section) => {
+        const marker = sectionMarker(section.name);
+        return (
+          <article key={section.name} className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-mono text-micro tracking-widest text-mark">
+                {marker}
+              </h3>
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex size-8 items-center justify-center rounded-md text-subtle",
+                  "transition-colors hover:bg-elevated hover:text-fg",
+                )}
+                onClick={() =>
+                  onCopySection(
+                    `${marker}\n${section.body}`,
+                    `${marker} copied`,
+                  )
+                }
+                aria-label={`Copy ${marker}`}
+              >
+                <Copy className="size-3.5" />
+              </button>
+            </div>
+            <p className="whitespace-pre-wrap font-mono text-plate leading-relaxed text-fg">
+              {section.body}
+            </p>
+          </article>
+        );
+      })}
     </div>
   );
 }

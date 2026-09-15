@@ -6,7 +6,7 @@ import {
   DEFAULT_STANDARD,
   SUBJECT_KINDS,
 } from "./prompt-standard";
-import { stripFences } from "./parse-prompt";
+import { parsePlate, assemblePlate, stripFences } from "./parse-prompt";
 
 const InputSchema = z.object({
   imageDataUrl: z.string().min(32).max(2_000_000),
@@ -108,5 +108,10 @@ export const generatePrompt = createServerFn({ method: "POST" })
       return { ok: false, error: "Grok returned an empty plate. Try again." };
     }
 
-    return { ok: true, prompt: stripFences(content) };
+    const raw = stripFences(content);
+    const parsed = parsePlate(raw);
+    const prompt =
+      parsed.sections.length > 0 ? assemblePlate(parsed.sections) : raw;
+
+    return { ok: true, prompt };
   });
