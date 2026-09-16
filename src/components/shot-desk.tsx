@@ -13,6 +13,12 @@ import {
   persistHistory,
   type HistoryItem,
 } from "@/lib/history";
+import {
+  isWebhookUrl,
+  loadWebhookUrl,
+  persistWebhookUrl,
+  postPlateToN8n,
+} from "@/lib/n8n";
 
 const STAGES = [
   "Reading the still",
@@ -29,10 +35,13 @@ export function ShotDesk() {
   const [exampleBusy, setExampleBusy] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [sendingN8n, setSendingN8n] = useState(false);
   const generatingRef = useRef(false);
 
   useEffect(() => {
     setHistory(loadHistory());
+    setWebhookUrl(loadWebhookUrl());
   }, []);
 
   const applyStill = useCallback((dataUrl: string) => {
@@ -119,6 +128,21 @@ export function ShotDesk() {
     }
   }, [imageDataUrl]);
 
+  const sendToN8n = useCallback(async () => {
+    if (sendingN8n) return;
+    setSendingN8n(true);
+    const result = await postPlateToN8n({
+      webhookUrl,
+      plate: prompt,
+    });
+    setSendingN8n(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Plate sent to n8n");
+  }, [prompt, sendingN8n, webhookUrl]);
+
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
       const items = event.clipboardData?.items;
@@ -174,6 +198,11 @@ export function ShotDesk() {
             generating={generating}
             onGenerate={() => void writePlate()}
             stageLabel={stageLabel}
+            webhookUrl={webhookUrl}
+            onWebhookUrl={(value) => {
+              setWebhookUrl(value);
+              persistWebhookUrl(value);
+            }}
           />
         </div>
 
@@ -183,6 +212,9 @@ export function ShotDesk() {
             generating={generating}
             error={error}
             onChange={setPrompt}
+            onSendN8n={() => void sendToN8n()}
+            sendingN8n={sendingN8n}
+            canSendN8n={isWebhookUrl(webhookUrl)}
           />
         </div>
       </main>

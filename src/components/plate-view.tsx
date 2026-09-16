@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Check, Copy, Download, Pencil, RotateCcw } from "lucide-react";
+import { Check, Copy, Download, LoaderCircle, Pencil, RotateCcw, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,9 @@ type PlateViewProps = {
   generating: boolean;
   error: string | null;
   onChange: (value: string) => void;
+  onSendN8n?: () => void;
+  sendingN8n?: boolean;
+  canSendN8n?: boolean;
 };
 
 function downloadPlate(value: string) {
@@ -30,6 +33,9 @@ export function PlateView({
   generating,
   error,
   onChange,
+  onSendN8n,
+  sendingN8n,
+  canSendN8n,
 }: PlateViewProps) {
   const [editing, setEditing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -117,6 +123,21 @@ export function PlateView({
             )}
             Copy plate
           </Button>
+          {onSendN8n ? (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!prompt || !canSendN8n || sendingN8n || generating}
+              onClick={onSendN8n}
+            >
+              {sendingN8n ? (
+                <LoaderCircle className="size-3.5 animate-spin" />
+              ) : (
+                <Send className="size-3.5" />
+              )}
+              Send to n8n
+            </Button>
+          ) : null}
         </div>
       </header>
 
@@ -156,7 +177,8 @@ function EmptyPlate() {
         Waiting on a still
       </p>
       <p className="max-w-sm text-sm text-muted">
-        Grok fills the whole MiniMax plate from the image. There is nothing to type.
+        Grok fills the whole MiniMax plate from the image. Send to n8n after it
+        writes.
       </p>
     </div>
   );

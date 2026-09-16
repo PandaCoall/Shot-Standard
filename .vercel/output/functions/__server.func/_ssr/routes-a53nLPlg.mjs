@@ -1,15 +1,16 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { a as DialogOverlay$1, c as Slot, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
+import { a as DialogOverlay$1, i as DialogDescription$1, l as Slot, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
-import { a as parsePlate, n as assemblePlate, o as sectionMarker, t as SECTION_ORDER } from "./parse-prompt-DctMrUnl.mjs";
+import { i as sectionMarker, n as assemblePlate, r as parsePlate, t as SECTION_ORDER } from "./write-plate-DaED1JwI.mjs";
 import { i as string, r as object } from "../_libs/zod.mjs";
-import { a as LoaderCircle, c as Download, d as Check, i as Pencil, l as Copy, o as ImagePlus, r as RotateCcw, s as History, t as X, u as Clapperboard } from "../_libs/lucide-react.mjs";
+import { a as Pencil, c as History, d as Clapperboard, f as Check, i as RotateCcw, l as Download, o as LoaderCircle, r as Send, s as ImagePlus, t as X, u as Copy } from "../_libs/lucide-react.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-PyfZ-53b.js
+import { t as Root } from "../_libs/radix-ui__react-label.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-a53nLPlg.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -62,7 +63,7 @@ function AppHeader({ onHistory, historyCount }) {
 				})]
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 				className: "mt-1 text-xs tracking-wide text-muted",
-				children: "Drop a still. Grok writes the MiniMax plate."
+				children: "No form. Drop a still → Write plate."
 			})]
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 			variant: "ghost",
@@ -79,9 +80,24 @@ function AppHeader({ onHistory, historyCount }) {
 		})]
 	});
 }
-function ControlsPanel({ canGenerate, generating, onGenerate, stageLabel }) {
+var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+		type,
+		className: cn("flex h-11 w-full rounded-md bg-elevated px-3 text-sm text-fg shadow-border", "placeholder:text-subtle", "transition-[box-shadow] duration-150 ease-out", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50", "disabled:cursor-not-allowed disabled:opacity-50", className),
+		ref,
+		...props
+	});
+});
+Input.displayName = "Input";
+var Label = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
+	ref,
+	className: cn("text-xs font-medium tracking-wide text-muted", className),
+	...props
+}));
+Label.displayName = Root.displayName;
+function ControlsPanel({ canGenerate, generating, onGenerate, stageLabel, webhookUrl, onWebhookUrl }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "flex flex-col gap-2",
+		className: "flex flex-col gap-3",
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 			size: "lg",
 			className: "w-full",
@@ -91,9 +107,28 @@ function ControlsPanel({ canGenerate, generating, onGenerate, stageLabel }) {
 				className: "size-4",
 				strokeWidth: 1.75
 			}), "Write plate"] })
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-			className: "text-center text-xs text-subtle",
-			children: "Grok reads the still. No fields to fill. ⌘ / Ctrl + Enter"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "flex flex-col gap-1.5",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+					htmlFor: "n8n-webhook",
+					children: "n8n webhook"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+					id: "n8n-webhook",
+					type: "url",
+					inputMode: "url",
+					autoComplete: "off",
+					spellCheck: false,
+					placeholder: "https://your-n8n.host/webhook/...",
+					value: webhookUrl,
+					onChange: (e) => onWebhookUrl(e.target.value)
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-xs text-subtle",
+					children: "Saved on this device. Used by Send to n8n."
+				})
+			]
 		})]
 	});
 }
@@ -239,7 +274,7 @@ function downloadPlate(value) {
 	a.click();
 	URL.revokeObjectURL(url);
 }
-function PlateView({ prompt, generating, error, onChange }) {
+function PlateView({ prompt, generating, error, onChange, onSendN8n, sendingN8n, canSendN8n }) {
 	const [editing, setEditing] = (0, import_react.useState)(false);
 	const [copied, setCopied] = (0, import_react.useState)(false);
 	const editorRef = (0, import_react.useRef)(null);
@@ -304,7 +339,14 @@ function PlateView({ prompt, generating, error, onChange }) {
 						disabled: !prompt,
 						onClick: () => void handleCopy(),
 						children: [copied ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "size-3.5" }), "Copy plate"]
-					})
+					}),
+					onSendN8n ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+						size: "sm",
+						variant: "outline",
+						disabled: !prompt || !canSendN8n || sendingN8n || generating,
+						onClick: onSendN8n,
+						children: [sendingN8n ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { className: "size-3.5" }), "Send to n8n"]
+					}) : null
 				]
 			})]
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -328,22 +370,13 @@ function PlateView({ prompt, generating, error, onChange }) {
 }
 function EmptyPlate() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "flex h-full min-h-72 flex-col justify-center gap-6 px-1",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+		className: "flex h-full min-h-72 flex-col justify-center gap-3 px-1",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 			className: "font-display text-2xl font-medium tracking-tight text-fg",
-			children: "The plate is empty"
+			children: "Waiting on a still"
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-			className: "mt-1 max-w-sm text-sm text-muted",
-			children: "Drop a still and write a prompt. Grok will fill every marker in the MiniMax standard."
-		})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", {
-			className: "grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3",
-			children: SECTION_ORDER.map((name, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-				className: "flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "text-subtle/70 tabular-nums",
-					children: String(i + 1).padStart(2, "0")
-				}), sectionMarker(name)]
-			}, name))
+			className: "max-w-sm text-sm text-muted",
+			children: "Grok fills the whole MiniMax plate from the image. Send to n8n after it writes."
 		})]
 	});
 }
@@ -566,9 +599,9 @@ var createSsrRpc = (functionId) => {
 		[TSS_SERVER_FUNCTION]: true
 	});
 };
-var InputSchema = object({ imageDataUrl: string().min(32).max(2e6) });
+var InputSchema = object({ imageDataUrl: string().min(32).max(4e6) });
 var generatePrompt = createServerFn({ method: "POST" }).validator((input) => InputSchema.parse(input)).handler(createSsrRpc("ae0b66bc00cda576a80e03abb5ceaab9ac189b8280d56d030ca6f8306bf252f0"));
-var KEY = "shot-standard-history-v1";
+var KEY$1 = "shot-standard-history-v1";
 var MAX_ITEMS = 24;
 function safeParse(raw, fallback) {
 	if (!raw) return fallback;
@@ -580,14 +613,68 @@ function safeParse(raw, fallback) {
 }
 function loadHistory() {
 	if (typeof window === "undefined") return [];
-	const items = safeParse(localStorage.getItem(KEY), []);
+	const items = safeParse(localStorage.getItem(KEY$1), []);
 	return Array.isArray(items) ? items.slice(0, MAX_ITEMS) : [];
 }
 function persistHistory(items) {
-	localStorage.setItem(KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
+	localStorage.setItem(KEY$1, JSON.stringify(items.slice(0, MAX_ITEMS)));
 }
 function newId() {
 	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+var KEY = "shot-standard-n8n-webhook-v1";
+function loadWebhookUrl() {
+	if (typeof window === "undefined") return "";
+	return localStorage.getItem(KEY)?.trim() ?? "";
+}
+function persistWebhookUrl(value) {
+	if (typeof window === "undefined") return;
+	const next = value.trim();
+	if (!next) {
+		localStorage.removeItem(KEY);
+		return;
+	}
+	localStorage.setItem(KEY, next);
+}
+function isWebhookUrl(value) {
+	try {
+		const url = new URL(value.trim());
+		return url.protocol === "https:" || url.protocol === "http:";
+	} catch {
+		return false;
+	}
+}
+async function postPlateToN8n(input) {
+	const webhookUrl = input.webhookUrl.trim();
+	if (!isWebhookUrl(webhookUrl)) return {
+		ok: false,
+		error: "Paste an n8n webhook URL first."
+	};
+	if (!input.plate.trim()) return {
+		ok: false,
+		error: "Write a plate before sending."
+	};
+	try {
+		const res = await fetch(webhookUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				source: "shot-standard",
+				createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+				plate: input.plate
+			})
+		});
+		if (!res.ok) return {
+			ok: false,
+			error: `n8n returned ${res.status}. Check the webhook is active.`
+		};
+		return { ok: true };
+	} catch {
+		return {
+			ok: false,
+			error: "Could not reach n8n. Use the Production webhook URL and allow the browser to POST."
+		};
+	}
 }
 var STAGES = [
 	"Reading the still",
@@ -603,9 +690,12 @@ function ShotDesk() {
 	const [exampleBusy, setExampleBusy] = (0, import_react.useState)(false);
 	const [history, setHistory] = (0, import_react.useState)([]);
 	const [historyOpen, setHistoryOpen] = (0, import_react.useState)(false);
+	const [webhookUrl, setWebhookUrl] = (0, import_react.useState)("");
+	const [sendingN8n, setSendingN8n] = (0, import_react.useState)(false);
 	const generatingRef = (0, import_react.useRef)(false);
 	(0, import_react.useEffect)(() => {
 		setHistory(loadHistory());
+		setWebhookUrl(loadWebhookUrl());
 	}, []);
 	const applyStill = (0, import_react.useCallback)((dataUrl) => {
 		setImageDataUrl(dataUrl);
@@ -678,6 +768,24 @@ function ShotDesk() {
 			generatingRef.current = false;
 		}
 	}, [imageDataUrl]);
+	const sendToN8n = (0, import_react.useCallback)(async () => {
+		if (sendingN8n) return;
+		setSendingN8n(true);
+		const result = await postPlateToN8n({
+			webhookUrl,
+			plate: prompt
+		});
+		setSendingN8n(false);
+		if (!result.ok) {
+			toast.error(result.error);
+			return;
+		}
+		toast.success("Plate sent to n8n");
+	}, [
+		prompt,
+		sendingN8n,
+		webhookUrl
+	]);
 	(0, import_react.useEffect)(() => {
 		const onPaste = (event) => {
 			const items = event.clipboardData?.items;
@@ -728,7 +836,12 @@ function ShotDesk() {
 						canGenerate: Boolean(imageDataUrl),
 						generating,
 						onGenerate: () => void writePlate(),
-						stageLabel
+						stageLabel,
+						webhookUrl,
+						onWebhookUrl: (value) => {
+							setWebhookUrl(value);
+							persistWebhookUrl(value);
+						}
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 					className: "flex min-h-96 animate-rise stagger-2 lg:col-span-8 lg:min-h-0",
@@ -736,7 +849,10 @@ function ShotDesk() {
 						prompt,
 						generating,
 						error,
-						onChange: setPrompt
+						onChange: setPrompt,
+						onSendN8n: () => void sendToN8n(),
+						sendingN8n,
+						canSendN8n: isWebhookUrl(webhookUrl)
 					})
 				})]
 			}),

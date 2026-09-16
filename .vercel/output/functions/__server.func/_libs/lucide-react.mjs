@@ -243,6 +243,19 @@ var RotateCcw = createLucideIcon("rotate-ccw", [["path", {
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var Send = createLucideIcon("send", [["path", {
+	d: "M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z",
+	key: "1ffxy3"
+}], ["path", {
+	d: "m21.854 2.147-10.94 10.939",
+	key: "12cjpa"
+}]]);
+/**
+* @license lucide-react v0.510.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var TriangleAlert = createLucideIcon("triangle-alert", [
 	["path", {
 		d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",
@@ -271,4 +284,4 @@ var X = createLucideIcon("x", [["path", {
 	key: "d8bk6v"
 }]]);
 //#endregion
-export { LoaderCircle as a, Download as c, Check as d, Pencil as i, Copy as l, TriangleAlert as n, ImagePlus as o, RotateCcw as r, History as s, X as t, Clapperboard as u };
+export { Pencil as a, History as c, Clapperboard as d, Check as f, RotateCcw as i, Download as l, TriangleAlert as n, LoaderCircle as o, Send as r, ImagePlus as s, X as t, Copy as u };

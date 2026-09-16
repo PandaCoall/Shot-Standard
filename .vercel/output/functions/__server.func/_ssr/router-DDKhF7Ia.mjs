@@ -2,11 +2,12 @@ import { i as __toESM, n as __exportAll } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { _ as useRouter, f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
+import { a as stillToDataUrl, o as writePlateFromDataUrl } from "./write-plate-DaED1JwI.mjs";
 import { a as union, i as string, n as number, r as object, t as literal } from "../_libs/zod.mjs";
 import { n as TriangleAlert } from "../_libs/lucide-react.mjs";
 import { t as Toaster } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-XVfbswQ4.js
-var router_XVfbswQ4_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
+//#region node_modules/.nitro/vite/services/ssr/assets/router-DDKhF7Ia.js
+var router_DDKhF7Ia_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -300,9 +301,9 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-DCRDGPhE.css";
+var styles_default = "/assets/styles-Bd8Ww_Eh.css";
 var APP_NAME = "Shot Standard";
-var Route$1 = createRootRoute({
+var Route$4 = createRootRoute({
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
@@ -372,13 +373,177 @@ var Route$1 = createRootRoute({
 		})]
 	})
 });
-var $$splitComponentImporter = () => import("./routes-PyfZ-53b.mjs");
-var rootRouteChildren = { IndexRoute: createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter, "component") }).update({
+var $$splitComponentImporter = () => import("./routes-a53nLPlg.mjs");
+var Route$3 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
+var CORS_HEADERS = {
+	"Access-Control-Allow-Origin": "*",
+	"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+	"Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
+	"Access-Control-Max-Age": "86400"
+};
+function json(body, status = 200, extra) {
+	return new Response(JSON.stringify(body), {
+		status,
+		headers: {
+			"content-type": "application/json; charset=utf-8",
+			...CORS_HEADERS,
+			...extra
+		}
+	});
+}
+function optionsOk() {
+	return new Response(null, {
+		status: 204,
+		headers: CORS_HEADERS
+	});
+}
+function readApiKey(request) {
+	const header = request.headers.get("x-api-key")?.trim() ?? "";
+	if (header) return header;
+	return (request.headers.get("authorization") ?? "").match(/^Bearer\s+(.+)$/i)?.[1]?.trim() ?? "";
+}
+function authorize(request) {
+	const expected = process.env.SHOT_API_KEY?.trim();
+	if (!expected) return null;
+	if (readApiKey(request) === expected) return null;
+	return json({
+		ok: false,
+		error: "Invalid or missing API key."
+	}, 401);
+}
+var catalog = {
+	name: "Shot Standard",
+	version: "1",
+	description: "Turn a still into a MiniMax shot plate.",
+	auth: {
+		type: "optional_header",
+		headers: ["x-api-key", "Authorization: Bearer <SHOT_API_KEY>"],
+		note: "Required only when SHOT_API_KEY is set on the server."
+	},
+	endpoints: [
+		{
+			method: "GET",
+			path: "/api",
+			purpose: "Discover this API"
+		},
+		{
+			method: "GET",
+			path: "/api/health",
+			purpose: "Liveness check for n8n"
+		},
+		{
+			method: "POST",
+			path: "/api/generate",
+			purpose: "Write a MiniMax plate from one still",
+			body: {
+				image: "data:image/jpeg;base64,... OR raw base64",
+				imageUrl: "https://example.com/still.jpg"
+			},
+			bodyNote: "Send image or imageUrl, not both required.",
+			response: {
+				ok: true,
+				plate: "[SCENE]\n..."
+			}
+		}
+	]
+};
+var Route$2 = createFileRoute("/api/")({ server: { handlers: {
+	OPTIONS: async () => optionsOk(),
+	GET: async () => json(catalog)
+} } });
+var Route$1 = createFileRoute("/api/generate")({ server: { handlers: {
+	OPTIONS: async () => optionsOk(),
+	POST: async ({ request }) => {
+		const denied = authorize(request);
+		if (denied) return denied;
+		let payload = {};
+		const contentType = request.headers.get("content-type") ?? "";
+		try {
+			if (contentType.includes("application/json")) payload = await request.json();
+			else if (contentType.includes("application/x-www-form-urlencoded")) {
+				const form = await request.formData();
+				payload = {
+					image: String(form.get("image") ?? "") || void 0,
+					imageUrl: String(form.get("imageUrl") ?? "") || void 0
+				};
+			} else if (contentType.includes("multipart/form-data")) {
+				const form = await request.formData();
+				const file = form.get("image") ?? form.get("file") ?? form.get("data");
+				if (file instanceof File) {
+					const buf = new Uint8Array(await file.arrayBuffer());
+					if (buf.byteLength > 3e6) return json({
+						ok: false,
+						error: "Still is too large. Keep it under 3 MB."
+					}, 413);
+					const mime = file.type.startsWith("image/") ? file.type : "image/jpeg";
+					let binary = "";
+					const chunk = 32768;
+					for (let i = 0; i < buf.length; i += chunk) binary += String.fromCharCode(...buf.subarray(i, i + chunk));
+					payload = { image: `data:${mime};base64,${btoa(binary)}` };
+				} else payload = {
+					image: String(form.get("image") ?? "") || void 0,
+					imageUrl: String(form.get("imageUrl") ?? form.get("url") ?? "") || void 0
+				};
+			} else payload = await request.json();
+		} catch {
+			return json({
+				ok: false,
+				error: "Body must be JSON or form data."
+			}, 400);
+		}
+		const still = await stillToDataUrl({
+			image: payload.image,
+			imageUrl: payload.imageUrl
+		});
+		if (!still.ok) return json({
+			ok: false,
+			error: still.error
+		}, still.status);
+		const result = await writePlateFromDataUrl(still.dataUrl);
+		if (!result.ok) return json({
+			ok: false,
+			error: result.error
+		}, result.status);
+		return json({
+			ok: true,
+			plate: result.plate
+		});
+	}
+} } });
+var Route = createFileRoute("/api/health")({ server: { handlers: {
+	OPTIONS: async () => optionsOk(),
+	GET: async () => json({
+		ok: true,
+		service: "shot-standard",
+		grok: Boolean(process.env.XAI_API_KEY?.trim()),
+		authRequired: Boolean(process.env.SHOT_API_KEY?.trim())
+	})
+} } });
+var IndexRoute = Route$3.update({
 	id: "/",
 	path: "/",
-	getParentRoute: () => Route$1
-}) };
-var routeTree = Route$1._addFileChildren(rootRouteChildren)._addFileTypes();
+	getParentRoute: () => Route$4
+});
+var ApiIndexRoute = Route$2.update({
+	id: "/api/",
+	path: "/api/",
+	getParentRoute: () => Route$4
+});
+var rootRouteChildren = {
+	IndexRoute,
+	ApiGenerateRoute: Route$1.update({
+		id: "/api/generate",
+		path: "/api/generate",
+		getParentRoute: () => Route$4
+	}),
+	ApiHealthRoute: Route.update({
+		id: "/api/health",
+		path: "/api/health",
+		getParentRoute: () => Route$4
+	}),
+	ApiIndexRoute
+};
+var routeTree = Route$4._addFileChildren(rootRouteChildren)._addFileTypes();
 function getRouter() {
 	return createRouter({
 		routeTree,
@@ -386,4 +551,4 @@ function getRouter() {
 	});
 }
 //#endregion
-export { getRouter, router_XVfbswQ4_exports as t };
+export { getRouter, router_DDKhF7Ia_exports as t };

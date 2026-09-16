@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/parse-prompt-DctMrUnl.js
+//#region node_modules/.nitro/vite/services/ssr/assets/write-plate-DaED1JwI.js
 var SECTION_ORDER = [
 	"SCENE",
 	"SUBJECT",
@@ -145,5 +145,179 @@ function parsePlate(raw) {
 function assemblePlate(sections) {
 	return sections.map((s) => `${sectionMarker(s.name)}\n${s.body}`.trim()).join("\n\n");
 }
+var INSTRUCTION_LINE = /^(describe the |describe exactly |describe shot |describe where |describe source |describe the visual |describe speed |describe dialogue |list the things that must remain)/i;
+function stripInstructionLeak(text) {
+	return text.split("\n").filter((line) => !INSTRUCTION_LINE.test(line.trim())).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+function friendlyStatus(status) {
+	if (status === 401 || status === 403) return "Grok is not available in this environment.";
+	if (status === 429) return "The desk is busy. Wait a moment and write again.";
+	if (status >= 500) return "Grok had a server hitch. Try once more.";
+	return `Grok returned ${status}. Try again.`;
+}
+function guessMime(bytes) {
+	if (bytes.length >= 3 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return "image/jpeg";
+	if (bytes.length >= 8 && bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) return "image/png";
+	if (bytes.length >= 12 && bytes[0] === 82 && bytes[1] === 73 && bytes[2] === 70 && bytes[3] === 70 && bytes[8] === 87 && bytes[9] === 69 && bytes[10] === 66 && bytes[11] === 80) return "image/webp";
+	return "image/jpeg";
+}
+function toBase64(bytes) {
+	let binary = "";
+	const chunk = 32768;
+	for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+	return btoa(binary);
+}
+async function stillToDataUrl(input) {
+	const raw = input.image?.trim();
+	if (raw) {
+		if (raw.startsWith("data:image/")) {
+			if (raw.length > 4e6) return {
+				ok: false,
+				error: "Still is too large. Keep it under 3 MB.",
+				status: 413
+			};
+			return {
+				ok: true,
+				dataUrl: raw
+			};
+		}
+		const compact = raw.replace(/\s/g, "");
+		if (/^[A-Za-z0-9+/]+=*$/.test(compact) && compact.length > 80) {
+			const dataUrl = `data:image/jpeg;base64,${compact}`;
+			if (dataUrl.length > 4e6) return {
+				ok: false,
+				error: "Still is too large. Keep it under 3 MB.",
+				status: 413
+			};
+			return {
+				ok: true,
+				dataUrl
+			};
+		}
+		return {
+			ok: false,
+			error: "image must be a data URL or raw base64.",
+			status: 400
+		};
+	}
+	const url = input.imageUrl?.trim();
+	if (!url) return {
+		ok: false,
+		error: "Send image (data URL or base64) or imageUrl (https).",
+		status: 400
+	};
+	let parsed;
+	try {
+		parsed = new URL(url);
+	} catch {
+		return {
+			ok: false,
+			error: "imageUrl is not a valid URL.",
+			status: 400
+		};
+	}
+	if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return {
+		ok: false,
+		error: "imageUrl must be http or https.",
+		status: 400
+	};
+	let res;
+	try {
+		res = await fetch(url, { signal: AbortSignal.timeout(2e4) });
+	} catch {
+		return {
+			ok: false,
+			error: "Could not fetch imageUrl.",
+			status: 400
+		};
+	}
+	if (!res.ok) return {
+		ok: false,
+		error: `Could not fetch imageUrl (${res.status}).`,
+		status: 400
+	};
+	const buf = new Uint8Array(await res.arrayBuffer());
+	if (buf.byteLength > 3e6) return {
+		ok: false,
+		error: "Remote still is too large. Keep it under 3 MB.",
+		status: 413
+	};
+	const mimeHeader = res.headers.get("content-type")?.split(";")[0]?.trim();
+	return {
+		ok: true,
+		dataUrl: `data:${mimeHeader && mimeHeader.startsWith("image/") ? mimeHeader : guessMime(buf)};base64,${toBase64(buf)}`
+	};
+}
+async function writePlateFromDataUrl(imageDataUrl) {
+	const apiKey = process.env.XAI_API_KEY?.trim();
+	if (!apiKey) return {
+		ok: false,
+		error: "Grok is not available in this environment.",
+		status: 503
+	};
+	if (!imageDataUrl.startsWith("data:image/")) return {
+		ok: false,
+		error: "That still could not be read.",
+		status: 400
+	};
+	const body = {
+		model: "grok-4.5",
+		reasoning_effort: "low",
+		max_tokens: 4e3,
+		temperature: .35,
+		messages: [{
+			role: "system",
+			content: buildSystemPrompt()
+		}, {
+			role: "user",
+			content: [{
+				type: "image_url",
+				image_url: {
+					url: imageDataUrl,
+					detail: "high"
+				}
+			}, {
+				type: "text",
+				text: buildUserPrompt()
+			}]
+		}]
+	};
+	let res;
+	try {
+		res = await fetch("https://api.x.ai/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${apiKey}`
+			},
+			body: JSON.stringify(body),
+			signal: AbortSignal.timeout(9e4)
+		});
+	} catch (err) {
+		const timedOut = err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError");
+		return {
+			ok: false,
+			status: timedOut ? 504 : 502,
+			error: timedOut ? "Grok took too long. Try again with a smaller still." : "Could not reach Grok. Check the connection and retry."
+		};
+	}
+	if (!res.ok) return {
+		ok: false,
+		error: friendlyStatus(res.status),
+		status: res.status
+	};
+	const content = (await res.json()).choices?.[0]?.message?.content;
+	if (!content || !content.trim()) return {
+		ok: false,
+		error: "Grok returned an empty plate. Try again.",
+		status: 502
+	};
+	const raw = stripInstructionLeak(stripFences(content));
+	const parsed = parsePlate(raw);
+	return {
+		ok: true,
+		plate: parsed.sections.length > 0 ? stripInstructionLeak(assemblePlate(parsed.sections)) : raw
+	};
+}
 //#endregion
-export { parsePlate as a, buildUserPrompt as i, assemblePlate as n, sectionMarker as o, buildSystemPrompt as r, stripFences as s, SECTION_ORDER as t };
+export { stillToDataUrl as a, sectionMarker as i, assemblePlate as n, writePlateFromDataUrl as o, parsePlate as r, SECTION_ORDER as t };
