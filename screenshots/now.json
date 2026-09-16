@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Shot Standard",
+      "hasCanvas": false,
+      "bodyTextLen": 548,
+      "bodyTextHash": "376b83da05e71de875c27abdf06c926e015493b6c249e04b89726d5d9abe7363",
+      "bodyTextPrefix": "Shot Standard Drop a still. Grok writes the MiniMax plate. Histo",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/now.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Shot Standard",
+      "hasCanvas": false,
+      "bodyTextLen": 548,
+      "bodyTextHash": "376b83da05e71de875c27abdf06c926e015493b6c249e04b89726d5d9abe7363",
+      "bodyTextPrefix": "Shot Standard Drop a still. Grok writes the MiniMax plate. Histo",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/now-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/now.json"
+}

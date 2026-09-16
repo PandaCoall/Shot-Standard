@@ -14,7 +14,7 @@ export function AppHeader({ onHistory, historyCount }: AppHeaderProps) {
           Shot <span className="text-mark">Standard</span>
         </p>
         <p className="mt-1 text-xs tracking-wide text-muted">
-          Drop a still. Grok writes the MiniMax plate.
+          No form. Drop a still → Write plate.
         </p>
       </div>
       <Button variant="ghost" size="sm" onClick={onHistory}>

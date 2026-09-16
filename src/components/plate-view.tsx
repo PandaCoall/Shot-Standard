@@ -151,28 +151,13 @@ export function PlateView({
 
 function EmptyPlate() {
   return (
-    <div className="flex h-full min-h-72 flex-col justify-center gap-6 px-1">
-      <div>
-        <p className="font-display text-2xl font-medium tracking-tight text-fg">
-          The plate is empty
-        </p>
-        <p className="mt-1 max-w-sm text-sm text-muted">
-          Drop a still and write a prompt. Grok will fill every marker in the MiniMax standard.
-        </p>
-      </div>
-      <ol className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
-        {SECTION_ORDER.map((name, i) => (
-          <li
-            key={name}
-            className="flex items-baseline gap-2 font-mono text-micro tracking-wide text-subtle"
-          >
-            <span className="text-subtle/70 tabular-nums">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            {sectionMarker(name)}
-          </li>
-        ))}
-      </ol>
+    <div className="flex h-full min-h-72 flex-col justify-center gap-3 px-1">
+      <p className="font-display text-2xl font-medium tracking-tight text-fg">
+        Waiting on a still
+      </p>
+      <p className="max-w-sm text-sm text-muted">
+        Grok fills the whole MiniMax plate from the image. There is nothing to type.
+      </p>
     </div>
   );
 }
