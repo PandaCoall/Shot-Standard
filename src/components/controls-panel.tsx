@@ -53,7 +53,7 @@ export function ControlsPanel({
           onChange={(e) => onWebhookUrl(e.target.value)}
         />
         <p className="text-xs text-subtle">
-          Saved on this device. Used by Send to n8n.
+          Grok reads the still in your MiniMax sample. Then send to n8n.
         </p>
       </div>
     </div>

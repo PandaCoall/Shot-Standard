@@ -177,8 +177,8 @@ function EmptyPlate() {
         Waiting on a still
       </p>
       <p className="max-w-sm text-sm text-muted">
-        Grok fills the whole MiniMax plate from the image. Send to n8n after it
-        writes.
+        Grok watches this still the way the sample does: who is there, what they
+        are doing, and the next action. Then it writes every MiniMax marker.
       </p>
     </div>
   );

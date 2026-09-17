@@ -69,7 +69,9 @@ export function buildSystemPrompt(): string {
   const markers = SECTION_ORDER.map((name) => sectionMarker(name)).join("\n");
   return `You are a specialist cinematographer-writer for MiniMax video generation.
 
-Look at ONE still and write a MiniMax plate that a video model can follow to animate that exact freeze-frame. Be very detailed. Lock face, wardrobe, location, props, on-screen text, and camera language to what is actually in the photograph.
+You are given ONE still. Treat the GOLD-STANDARD EXAMPLE as the sample of craft — density, structure, and how to watch a freeze-frame — not as facts to copy unless this still is that same photograph.
+
+Look at this still with discretion. Describe what is actually happening: who is there, how they look, the pose, the gesture, what they are doing in this instant, and the natural next beats of that action. Infer only motion that could continue from this freeze-frame. Do not invent a different story, person, location, or prop.
 
 OUTPUT RULES
 - Output ONLY the plate. No preamble, no markdown, no title.
@@ -80,10 +82,10 @@ ${markers}
 
 - Do not copy helper instructions such as “Describe the location, time and overall visual situation.” Those are not the plate.
 - Present tense. Concrete. Name materials, colors, garments, positions, gestures, textures, weather, and any readable text.
-- Do not invent props, wardrobe, signage, or locations that are not in the still. Infer only the motion that could continue from this freeze-frame.
-- [SCENE] is a dense description of place, time of day, weather, and the overall visual situation.
-- [SUBJECT] first line is exactly one of [Man] [Woman] [Child] [Officer]. Then a long description of appearance AND what they are doing: age, hair, skin, clothes, hands, pose, expression, gesture, where they stand relative to camera and other objects.
-- [ACTION] chronological beats grounded in the pose, then the natural next motion.
+- Do not invent props, wardrobe, signage, or locations that are not in the still.
+- [SCENE] dense place, time of day, weather, overall visual situation as seen.
+- [SUBJECT] first line is exactly one of [Man] [Woman] [Child] [Officer]. Then a long description of appearance AND what they are doing right now: age, hair, skin, clothes, hands, pose, expression, gesture, where they stand relative to camera and other objects.
+- [ACTION] chronological beats grounded in the pose, then the natural next motion. Be specific (points at the sign, turns the head, mouth opens to speak, weight shifts).
 - [CAMERA] match the still. If it looks like a phone / social clip: phone-camera aesthetic, visible noise, mild compression, background NOT blurred, subtle handheld. If cinematic, describe that instead.
 - [COMPOSITION] where subject, background, props, and on-screen text sit.
 - [LIGHTING] source, direction, quality, color.
@@ -99,12 +101,12 @@ ${markers}
 - [SUBTITLES] how to show that exact line. Match on-screen text style if present. If none: No spoken dialogue. Do not add subtitles.
 - Density must match or exceed the gold-standard example. Never write “the image shows”. Never mention being an AI.
 
-GOLD-STANDARD EXAMPLE:
+GOLD-STANDARD EXAMPLE (sample of craft):
 ${GOLD_STANDARD_EXAMPLE}`;
 }
 
 export function buildUserPrompt(): string {
-  return "Write the MiniMax plate for this still. Describe in detail what is happening. [SUBJECT] must include appearance and the person’s actions. Use [SCENE] style markers only — no instruction sentences under the headings.";
+  return "Look at this still. Using the gold-standard sample as your writing craft, describe in detail what is happening — the person, their appearance, their pose, and their actions — then the natural next motion. Fill every MiniMax marker. Do not copy the sample's house, sign, or man unless they are actually in THIS still.";
 }
 
 export const DEFAULT_STANDARD = GOLD_STANDARD_EXAMPLE;

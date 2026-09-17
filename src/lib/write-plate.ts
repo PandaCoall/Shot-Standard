@@ -1,5 +1,6 @@
-import { buildSystemPrompt, buildUserPrompt } from "./prompt-standard";
 import { assemblePlate, parsePlate, stripFences } from "./parse-prompt";
+import { env } from "./env.server";
+import { buildSystemPrompt, buildUserPrompt } from "./prompt-standard";
 
 export type WritePlateOk = { ok: true; plate: string };
 export type WritePlateErr = { ok: false; error: string; status: number };
@@ -127,7 +128,7 @@ export async function stillToDataUrl(input: {
 export async function writePlateFromDataUrl(
   imageDataUrl: string,
 ): Promise<WritePlateResult> {
-  const apiKey = process.env.XAI_API_KEY?.trim();
+  const apiKey = env("XAI_API_KEY");
   if (!apiKey) {
     return {
       ok: false,
