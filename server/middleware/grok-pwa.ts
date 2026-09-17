@@ -28,30 +28,6 @@ import {
 interface GrokPwaEvent {
   url: URL;
   req: { method: string; headers: Headers };
-  request?: Request;
-  path?: string;
-}
-
-function continueNext(next: unknown): unknown | Promise<unknown> {
-  return typeof next === "function" ? (next as () => unknown | Promise<unknown>)() : undefined;
-}
-
-function normalizeEvent(event: GrokPwaEvent): GrokPwaEvent | null {
-  const req = event.req ?? event.request;
-  let url = event.url;
-  if (!(url instanceof URL)) {
-    try {
-      const raw =
-        (req as Request | undefined)?.url ||
-        (typeof event.path === "string" ? event.path : "/") ||
-        "/";
-      url = new URL(raw, "http://localhost");
-    } catch {
-      return null;
-    }
-  }
-  if (!req || typeof req.method !== "string") return null;
-  return { ...event, req, url };
 }
 
 function requestHost(event: GrokPwaEvent): string {
@@ -61,12 +37,11 @@ function requestHost(event: GrokPwaEvent): string {
 }
 
 function injectHeadStreaming(response: Response, host: string): Response {
-  if (!response.body) return response;
   const injector = createHeadInjector({
     host,
     site: grokOgIdentity.site,
   });
-  const transformed = response.body.pipeThrough(
+  const transformed = response.body!.pipeThrough(
     new TransformStream<Uint8Array, Uint8Array>({
       transform(chunk, controller) {
         for (const out of injector.push(chunk)) controller.enqueue(out);
@@ -89,56 +64,48 @@ export default async function grokPwaMiddleware(
   event: GrokPwaEvent,
   next: () => unknown | Promise<unknown>,
 ): Promise<unknown> {
-  try {
-    const normalized = normalizeEvent(event);
-    if (!normalized) return continueNext(next);
+  const method = (event.req.method ?? "GET").toUpperCase();
+  if (method !== "GET") return next();
 
-    const method = (normalized.req.method ?? "GET").toUpperCase();
-    if (method !== "GET") return continueNext(next);
+  const path = event.url.pathname;
+  const urlWithQuery = path + event.url.search;
 
-    const path = normalized.url.pathname;
-    const urlWithQuery = path + normalized.url.search;
-
-    if (path === "/__grok/manifest.webmanifest" || path === "/__grok/manifest.json") {
-      return new Response(renderWebManifest(requestHost(normalized)), {
-        headers: {
-          "content-type": "application/manifest+json; charset=utf-8",
-          "cache-control": "no-cache",
-        },
-      });
-    }
-
-    if (
-      isInstallQuery(urlWithQuery) &&
-      isDocumentPath(path) &&
-      acceptsHtml(normalized.req.headers.get("accept"))
-    ) {
-      const html = renderInstallPageHtml(installPageTemplate, {
-        host: requestHost(normalized),
-        url: urlWithQuery,
-      });
-      return new Response(html, {
-        headers: {
-          "content-type": "text/html; charset=utf-8",
-          "cache-control": "no-cache",
-        },
-      });
-    }
-
-    if (!isDocumentPath(path)) return continueNext(next);
-
-    const result = await continueNext(next);
-    if (
-      result instanceof Response &&
-      result.body &&
-      String(result.headers.get("content-type") ?? "").includes("text/html") &&
-      !result.headers.get("content-encoding")
-    ) {
-      return injectHeadStreaming(result, requestHost(normalized));
-    }
-    return result;
-  } catch (err) {
-    console.error("[grok-pwa] middleware failed; passing through", err);
-    return continueNext(next);
+  if (path === "/__grok/manifest.webmanifest" || path === "/__grok/manifest.json") {
+    return new Response(renderWebManifest(requestHost(event)), {
+      headers: {
+        "content-type": "application/manifest+json; charset=utf-8",
+        "cache-control": "no-cache",
+      },
+    });
   }
+
+  if (
+    isInstallQuery(urlWithQuery) &&
+    isDocumentPath(path) &&
+    acceptsHtml(event.req.headers.get("accept"))
+  ) {
+    const html = renderInstallPageHtml(installPageTemplate, {
+      host: requestHost(event),
+      url: urlWithQuery,
+    });
+    return new Response(html, {
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-cache",
+      },
+    });
+  }
+
+  if (!isDocumentPath(path)) return next();
+
+  const result = await next();
+  if (
+    result instanceof Response &&
+    result.body &&
+    String(result.headers.get("content-type") ?? "").includes("text/html") &&
+    !result.headers.get("content-encoding")
+  ) {
+    return injectHeadStreaming(result, requestHost(event));
+  }
+  return result;
 }
