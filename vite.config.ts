@@ -175,6 +175,13 @@ export default defineConfig(({ command, isPreview }) => ({
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            errorHandler: "./scripts/nitro-error.mjs",
+            vercel: {
+              functions: {
+                runtime: "nodejs22.x",
+                maxDuration: 60,
+              },
+            },
           }),
         ]
       : []),
